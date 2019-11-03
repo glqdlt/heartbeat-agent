@@ -26,6 +26,11 @@ public abstract class ExecuteRequest {
         return path;
     }
 
+    protected ExecuteRequest(File path, ScriptPlatform platform) {
+        this.path = path;
+        this.platform = platform;
+    }
+
     public static final class MockRequest extends ExecuteRequest {
         private String mockCommand;
 
@@ -40,46 +45,6 @@ public abstract class ExecuteRequest {
         }
     }
 
-    private ExecuteRequest(File path, ScriptPlatform platform) {
-        this.path = path;
-        this.platform = platform;
-    }
-
-    private static class MacRequest extends ExecuteRequest {
-
-        private MacRequest(File path) {
-            super(path, KnownPlatform.MAC);
-        }
-
-        @Override
-        public String getCommand() throws IOException {
-            return "sh " + getPath().getCanonicalPath();
-        }
-    }
-
-    private static class WindowRequest extends ExecuteRequest {
-
-        private WindowRequest(File path) {
-            super(path, KnownPlatform.WINDOW);
-        }
-
-        @Override
-        public String getCommand() throws IOException {
-            return getPath().getCanonicalPath();
-        }
-    }
-
-    private static class LinuxRequest extends ExecuteRequest {
-
-        private LinuxRequest(File path) {
-            super(path, KnownPlatform.LINUX);
-        }
-
-        @Override
-        public String getCommand() throws IOException {
-            return "sh " + getPath().getCanonicalPath();
-        }
-    }
 
     public static class Builder {
         public static ExecuteRequest build(ScriptPlatform platform, String path) {
@@ -97,14 +62,7 @@ public abstract class ExecuteRequest {
 
             if (platform instanceof KnownPlatform) {
                 KnownPlatform p = (KnownPlatform) platform;
-                switch (p) {
-                    case MAC:
-                        return new MacRequest(file);
-                    case LINUX:
-                        return new LinuxRequest(file);
-                    case WINDOW:
-                        return new WindowRequest(file);
-                }
+                return p.creatRequest(file);
             }
             throw new ProcessExecuterError(String.format("Not Supported platform.. %s", platform.getName()));
         }
