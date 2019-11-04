@@ -45,6 +45,18 @@ public abstract class ExecuteRequest {
         }
     }
 
+    private static String getSysProp() {
+        return System.getProperty("os.name").toLowerCase();
+    }
+
+    public static boolean checkPlatform(String... prop) {
+        for (String a : prop) {
+            if (getSysProp().toLowerCase().contains(a.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static class Builder {
         public static ExecuteRequest build(ScriptPlatform platform, String path) {
@@ -56,10 +68,9 @@ public abstract class ExecuteRequest {
                 throw new WrongScriptError(file.getName(), platform.getName());
             }
 
-            if (!platform.checkPlatform()) {
+            if (!checkPlatform(platform.getJvmPropertyValue())) {
                 throw new ProcessExecuterError(String.format("System is not platform %s", platform.getName()));
             }
-
             if (platform instanceof KnownPlatform) {
                 KnownPlatform p = (KnownPlatform) platform;
                 return p.creatRequest(file);

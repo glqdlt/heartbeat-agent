@@ -12,19 +12,5 @@ public interface ScriptPlatform {
 
     Integer getType();
 
-    default String getSysProp() {
-        return System.getProperty("os.name").toLowerCase();
-    }
-
-    default boolean checkPlatform() {
-        final String a = getSysProp();
-        for (String val : getJvmPropertyValue()) {
-            if (a.contains(val)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     String[] getJvmPropertyValue();
 }
